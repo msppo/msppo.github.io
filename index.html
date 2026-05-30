@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <base target="_blank">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="assets/icon.png">
+    <title>Beyond Topology: A Morphological Symmetry Graph Representation for Locomotion Policy Learning</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+
+    <!-- Set initial theme and update images before first paint to prevent flashing or mismatch images -->
+    <script>
+        (function () {
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+        })();
+
+        (function () {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+
+            // Update dark/light images immediately
+            window.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('img[data-dark-src]').forEach(img => {
+                const desiredSrc = img.getAttribute(prefersDark ? 'data-dark-src' : 'data-light-src');
+                img.src = desiredSrc;
+            });
+            });
+        })();
+    </script>
+
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']]
+          }
+        };
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-291MD67PHF"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-291MD67PHF');
+    </script>
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            <button class="button dark-mode-toggle is-medium" onclick="toggleDarkMode()">
+                <span class="icon">
+                    <i class="fas fa-moon" id="theme-icon"></i>
+                </span>
+            </button>
+            <div class="content">
+                <div class="toc-container">
+                    <div class="toc-content">
+                        <aside class="menu">
+                            <p class="menu-label">
+                                Table of Contents
+                            </p>
+                            <ul class="menu-list">
+                                <li><a href="#method" target="_self">Method</a></li>
+                            </ul>
+                        </aside>
+                    </div>
+                </div>
+
+                <h1 class="title is-1 is-size-2-mobile mt-0">Beyond Topology: A Morphological Symmetry Graph Representation for Locomotion Policy Learning</h1>
+
+                <div class="author-info">
+                    <p class="subtitle">
+                        <div class="is-inline-block is-size-5"><a class="has-text-weight-semibold" href="">Anonoumous Authors</a></div>
+                    </p>
+                    <p></p>
+                </div>
+                
+                <!-- <div class="video-card">
+                    <video autoplay controls loop muted playsinline alt="Teaser Video">
+                        <source src="assets/videos/teaser.mp4" type="video/mp4">
+                    </video>
+                </div> -->
+
+                <h2 id="abstract" class="title is-4 mb-2">Abstract</h2>
+                <p style="font-size: 0.95em">
+                    Reinforcement learning has enabled impressive locomotion skills on articulated robots, but common policy representations remain only weakly aligned with robot physics. Generic networks ignore kinematic organization, while graph-based policies encode connectivity without specifying how physical quantities transform across symmetric body parts. We introduce a morphological symmetry graph representation for locomotion policy learning and instantiate it in MS-PPO. Starting from the robot's topological graph, our representation augments each observation and action space with the permutation and sign transformations induced by morphological symmetry. This yields a symmetry-equivariant graph actor and a symmetry-invariant graph critic, enforcing the desired policy and value constraints by construction rather than through reward shaping or data augmentation. We evaluate MS-PPO on Unitree Go2 quadruped and Unitree G1 humanoid locomotion tasks, including command tracking, asymmetric joint failures, training-efficiency comparisons, and zero-shot sim-to-real deployment. Experiments show improved symmetry generalization, robustness, sample efficiency, and model efficiency over topology- and symmetry-aware baselines.
+                </p>
+
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Handle copying citation text
+        const copyCitation = async () => {
+            try {
+                const citationText = document.getElementById('citation-text').innerText;
+                await navigator.clipboard.writeText(citationText);
+                
+                const toast = document.getElementById('toast');
+                toast.classList.remove('is-hidden');
+                setTimeout(() => toast.classList.add('is-hidden'), 2000);
+            } catch (err) {
+                console.error('Failed to copy citation:', err);
+            }
+        };
+
+        // Handle dark/light theme toggling
+        const updateTheme = (isDark) => {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('theme-icon');
+            
+            // Update theme
+            html.setAttribute('data-theme', isDark ? 'dark' : 'light');
+            
+            // Update icon
+            themeIcon.classList.remove('fa-moon', 'fa-sun');
+            themeIcon.classList.add(isDark ? 'fa-sun' : 'fa-moon');
+            
+            // Update images
+            document.querySelectorAll('img[data-dark-src]').forEach(img => {
+                const desiredSrc = img.getAttribute(isDark ? 'data-dark-src' : 'data-light-src');
+                if (!img.src.includes(desiredSrc)) {
+                    img.src = desiredSrc;
+                } else {
+                    // Force reload for Safari
+                    img.src = desiredSrc + '?v=' + Date.now();
+                }
+            });
+        };
+
+        const toggleDarkMode = () => {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            updateTheme(!isDark);
+        };
+
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            updateTheme(e.matches);
+        });
+    </script>
+</body>
+  
+</html>
