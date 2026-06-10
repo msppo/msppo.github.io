@@ -183,7 +183,7 @@
                      ========================================================= -->
                 <h2 id="symmetry" class="title is-4 mb-2">Symmetry Generalization — Walk to One Side (Unitree Go2)</h2>
                 <p class="exp-desc">
-                    Policies are trained using one-sided lateral and yaw-rate commands (left-turn only: $c_y \in [0, 0.6]$ m/s, $c_\omega \in [0, 1]$ rad/s), then evaluated on both the trained direction and the mirrored right-turn direction. The right-turn command is out-of-distribution (OOD). A policy with perfect $\mathbb{C}_2$ equivariance generalizes symmetrically without retraining. On the trot gait, MS-PPO achieves 51.8%, 46.6%, and 61.4% lower OOD tracking error (RMSE-O) compared to PPO, PPO-EMLP, and MI-PPO. On the pronk gait — which demands tighter whole-body coordination — MS-PPO is the only method maintaining low error in both directions. Each row below shows one method; columns show in-distribution (left turn) and OOD (right turn).
+                    Policies are trained using one-sided lateral and yaw-rate commands (left-turn only: $c_y \in [0, 0.6]$ m/s, $c_\omega \in [0, 1]$ rad/s), then evaluated on both the trained direction and the mirrored right-turn direction. The right-turn command is out-of-distribution (OOD). A policy with perfect $\mathbb{C}_2$ equivariance generalizes symmetrically without retraining. On the trot gait, MS-PPO achieves 51.8%, 46.6%, and 61.4% lower OOD tracking error (RMSE-O) compared to PPO, PPO-EMLP, and MI-PPO. On the pronk gait, which demands tighter whole-body coordination, MS-PPO is the only method maintaining low error in both directions. Each row below shows one method; columns show in-distribution (left turn) and OOD (right turn).
                 </p>
 
                 <div class="tab-group" id="tabs-symmetry">
@@ -461,7 +461,7 @@
                      ========================================================= -->
                 <h2 id="humanoid" class="title is-4 mb-2">Humanoid Locomotion (Unitree G1)</h2>
                 <p class="exp-desc">
-                    MS-PPO is evaluated on the Unitree G1 humanoid — a significantly more complex morphology than Go2, with higher degrees of freedom and a different kinematic topology. Policies are deployed zero-shot on the physical robot without fine-tuning. PPO and MI-PPO fail to produce stable hardware locomotion. Among the methods that deploy, MS-PPO achieves the lowest forward velocity tracking MSE ($0.5671 \pm 0.1418$ m/s). The failure of MI-PPO — which uses the same graph backbone but lacks the morphological symmetry encoder and decoder — indicates that graph connectivity alone is insufficient for reliable transfer on humanoids.
+                    MS-PPO is evaluated on the Unitree G1 humanoid, which has a significantly more complex morphology than Go2, with higher degrees of freedom and a different kinematic topology. Policies are deployed zero-shot on the physical robot without fine-tuning. Among the methods that deploy, MS-PPO achieves the lowest forward velocity tracking MSE ($0.5671 \pm 0.1418$ m/s). 
                 </p>
 
                 <div style="max-width: 480px;">
