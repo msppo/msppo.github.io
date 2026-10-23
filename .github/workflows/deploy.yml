@@ -25,8 +25,10 @@ jobs:
         with:
           lfs: false
       - uses: actions/configure-pages@v5
+      - name: Prepare anonymous website files
+        run: python3 .github/scripts/prepare_pages.py
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: "."
+          path: "_site"
       - id: deployment
         uses: actions/deploy-pages@v4

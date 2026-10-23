@@ -4,7 +4,7 @@
     <base target="_blank">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="assets/icon.png">
+    <meta name="description" content="Morphological symmetry graph representations for Go2 quadruped locomotion with MS-PPO and G1 29-DoF whole-body control with MS-SAC.">
     <title>Beyond Topology: A Morphological Symmetry Graph Representation for Locomotion Policy Learning</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
     <link rel="stylesheet" href="style.css">
@@ -29,19 +29,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-291MD67PHF"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-291MD67PHF');
-    </script>
 </head>
 <body>
     <section class="section">
         <div class="container">
-            <button class="button dark-mode-toggle is-medium" onclick="toggleDarkMode()">
+            <button type="button" aria-label="Switch color theme" class="button dark-mode-toggle is-medium" onclick="toggleDarkMode()">
                 <span class="icon">
                     <i class="fas fa-moon" id="theme-icon"></i>
                 </span>
@@ -54,6 +46,7 @@
                         <aside class="menu">
                             <p class="menu-label">Table of Contents</p>
                             <ul class="menu-list">
+                                <li><a href="#abstract" target="_self">Abstract</a></li>
                                 <li><a href="#figure8" target="_self">Figure-8 Walking</a></li>
                                 <li><a href="#symmetry" target="_self">Symmetry Generalization</a></li>
                                 <li><a href="#joint-failure" target="_self">Joint Failure</a></li>
@@ -71,240 +64,327 @@
                     <p class="subtitle">
                         <span class="is-inline-block is-size-5 has-text-weight-semibold">Anonymous Authors</span>
                     </p>
-                    <p></p>
+                    <p class="experiment-note">Under Review · MS-PPO on Go2 · MS-SAC on G1</p>
                 </div>
 
-                <!-- Teaser video -->
+                <!-- ICRA 2027 video overview -->
                 <div class="video-card" style="margin: 1.5rem 0;">
-                    <video controls loop playsinline>
-                        <source src="video_teaser.mp4" type="video/mp4">
+                    <video controls loop playsinline preload="none" poster="assets/posters/overview.jpg" aria-label="ICRA 2027 video overview">
+                        <source src="videos/web/overview.mp4" type="video/mp4">
                     </video>
                 </div>
 
                 <!-- Abstract -->
                 <h2 id="abstract" class="title is-4 mb-2">Abstract</h2>
                 <p style="font-size: 0.95em;">
-                    Reinforcement learning has enabled impressive locomotion skills on articulated robots, but common policy representations remain only weakly aligned with robot physics. Generic networks ignore kinematic organization, while graph-based policies encode connectivity without specifying how physical quantities transform across symmetric body parts. We introduce a morphological symmetry graph representation for locomotion policy learning and instantiate it in MS-PPO. Starting from the robot's topological graph, our representation augments each observation and action space with the permutation and sign transformations induced by morphological symmetry. This yields a symmetry-equivariant graph actor and a symmetry-invariant graph critic, enforcing the desired policy and value constraints by construction rather than through reward shaping or data augmentation. We evaluate MS-PPO on Unitree Go2 quadruped and Unitree G1 humanoid locomotion tasks, including command tracking, asymmetric joint failures, training-efficiency comparisons, and zero-shot sim-to-real deployment. Experiments show improved symmetry generalization, robustness, sample efficiency, and model efficiency over topology- and symmetry-aware baselines.
+                    Reinforcement learning has enabled impressive locomotion skills on articulated robots, but common policy representations remain only weakly aligned with robot physics. Generic networks ignore kinematic structure, while graph-based policies encode connectivity without specifying how physical quantities transform across symmetric body parts. We introduce a morphological symmetry graph representation for locomotion policy learning, instantiated as MS-PPO with PPO on Go2 and MS-SAC with FastSAC on G1. Starting from the robot's topological graph, our representation explicitly incorporates the permutations and sign changes induced by morphological symmetry on observations and actions, yielding a graph actor with an equivariant action mean and an invariant critic. We evaluate the representation on Unitree Go2 command tracking and asymmetric joint-failure tasks, and on Unitree G1 29-DoF whole-body locomotion, including zero-shot sim-to-real deployment. Our approach achieves the lowest tracking errors in both simulation and hardware, and the highest mean simulation returns across all three joint-failure types on Go2 among the evaluated baselines. On Go2, MS-PPO uses only 34.6% of the parameters of the PPO baseline. These results support the effectiveness of jointly encoding topology and morphological symmetry across robot embodiments and learning frameworks.
                 </p>
 
                 <div class="divider" style="margin: 2rem 0;"></div>
 
-                <!-- =========================================================
-                     Section 1: Figure-8 Walking
-                     ========================================================= -->
                 <h2 id="figure8" class="title is-4 mb-2">Quadrupedal Figure-8 Walking (Unitree Go2)</h2>
-                <p class="exp-desc">
-                    The <em>walk-figure-8</em> task requires tracking a symmetric trajectory with alternating clockwise and counterclockwise turns, directly evaluating left-right angular velocity tracking. MS-PPO achieves the best angular tracking error and highest reward, while using only 34.6% of PPO's parameters. Its symmetry-equivariant actor couples mirrored observations and actions by construction, so left- and right-turn behaviors are shared rather than learned independently. Baselines are PPO (generic MLP), PPO-EMLP (flat $\mathbb{C}_2$-equivariant MLP), PPO-Aug (symmetry via data augmentation), and MI-PPO (topology-aware GNN without symmetry).
-                </p>
-
+                <p class="exp-desc">The robot follows velocity commands derived from $x(t)=2\sin(2\pi t/20)$ and $y(t)=\sin(4\pi t/20)$, alternating left and right turns. The reference has a <strong>20-second period</strong> and a <strong>4 m × 2 m</strong> peak-to-peak envelope. Simulation covers one period; hardware evaluation covers <strong>three consecutive periods (60 s)</strong>. MS-PPO achieves the lowest mean linear and angular tracking errors in both simulation and hardware, with 732,046 parameters—34.6% of the PPO baseline.</p>
+                <p class="exp-desc">We compare seven methods: <strong>PPO</strong> (MLP), <strong>PPO-Aug</strong> (mirrored augmentation), <strong>PPO-EMLP</strong> (equivariant MLP), <strong>BoT</strong> (four-layer Body Transformer), <strong>MI-PPO</strong> (morphology-informed GNN), <strong>MI-PPO-Aug</strong> (GNN with mirrored augmentation), and <strong>MS-PPO</strong> (ours).</p>
                 <div class="tab-group" id="tabs-figure8">
-                    <div class="tab-buttons">
-                        <button class="tab-btn is-active" onclick="switchTab('tabs-figure8', 'real', this)">Hardware</button>
-                        <button class="tab-btn" onclick="switchTab('tabs-figure8', 'sim', this)">Simulation</button>
+                    <div class="tab-buttons" role="tablist" aria-label="Experiment views">
+                        <button type="button" class="tab-btn is-active" id="tabs-figure8-real-tab" role="tab" aria-selected="true" aria-controls="tabs-figure8-real" tabindex="0" onclick="switchTab('tabs-figure8', 'real', this)">Hardware</button>
+                        <button type="button" class="tab-btn" id="tabs-figure8-sim-tab" role="tab" aria-selected="false" aria-controls="tabs-figure8-sim" tabindex="-1" onclick="switchTab('tabs-figure8', 'sim', this)">Simulation results</button>
                     </div>
-
-                    <!-- Hardware -->
-                    <div class="tab-content is-active" data-tab="real">
-                        <div class="video-grid video-grid-5">
+                    <div class="tab-content is-active" data-tab="real" id="tabs-figure8-real" role="tabpanel" aria-labelledby="tabs-figure8-real-tab">
+                        <div class="video-grid video-grid-7">
                             <div class="method-card">
-                                <video autoplay loop muted playsinline preload="metadata">
-                                    <source src="videos/go2_walk_figure_8/real/MLP_short_h264.mp4" type="video/mp4">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/figure8/one-cycle/PPO.jpg" aria-label="Figure-8 hardware: PPO">
+                                    <source src="videos/web/figure8/one-cycle/PPO.mp4" type="video/mp4">
                                 </video>
                                 <div class="method-label">PPO</div>
                             </div>
                             <div class="method-card">
-                                <video autoplay loop muted playsinline preload="metadata">
-                                    <source src="videos/go2_walk_figure_8/real/EMLP_short_h264.mp4" type="video/mp4">
-                                </video>
-                                <div class="method-label">PPO-EMLP</div>
-                            </div>
-                            <div class="method-card">
-                                <video autoplay loop muted playsinline preload="metadata">
-                                    <source src="videos/go2_walk_figure_8/real/MLP_aug_short_h264.mp4" type="video/mp4">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/figure8/one-cycle/PPO-Aug.jpg" aria-label="Figure-8 hardware: PPO-Aug">
+                                    <source src="videos/web/figure8/one-cycle/PPO-Aug.mp4" type="video/mp4">
                                 </video>
                                 <div class="method-label">PPO-Aug</div>
                             </div>
                             <div class="method-card">
-                                <video autoplay loop muted playsinline preload="metadata">
-                                    <source src="videos/go2_walk_figure_8/real/GNN_short_h264.mp4" type="video/mp4">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/figure8/one-cycle/PPO-EMLP.jpg" aria-label="Figure-8 hardware: PPO-EMLP">
+                                    <source src="videos/web/figure8/one-cycle/PPO-EMLP.mp4" type="video/mp4">
+                                </video>
+                                <div class="method-label">PPO-EMLP</div>
+                            </div>
+                            <div class="method-card">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/figure8/one-cycle/BoT.jpg" aria-label="Figure-8 hardware: BoT">
+                                    <source src="videos/web/figure8/one-cycle/BoT.mp4" type="video/mp4">
+                                </video>
+                                <div class="method-label">BoT</div>
+                            </div>
+                            <div class="method-card">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/figure8/one-cycle/MI-PPO.jpg" aria-label="Figure-8 hardware: MI-PPO">
+                                    <source src="videos/web/figure8/one-cycle/MI-PPO.mp4" type="video/mp4">
                                 </video>
                                 <div class="method-label">MI-PPO</div>
                             </div>
+                            <div class="method-card">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/figure8/one-cycle/MI-PPO-Aug.jpg" aria-label="Figure-8 hardware: MI-PPO-Aug">
+                                    <source src="videos/web/figure8/one-cycle/MI-PPO-Aug.mp4" type="video/mp4">
+                                </video>
+                                <div class="method-label">MI-PPO-Aug</div>
+                            </div>
                             <div class="method-card is-ours">
-                                <video autoplay loop muted playsinline preload="metadata">
-                                    <source src="videos/go2_walk_figure_8/real/MSGNN_short_h264.mp4" type="video/mp4">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/figure8/one-cycle/MS-PPO.jpg" aria-label="Figure-8 hardware: MS-PPO">
+                                    <source src="videos/web/figure8/one-cycle/MS-PPO.mp4" type="video/mp4">
                                 </video>
                                 <div class="method-label is-ours">MS-PPO (ours)</div>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Simulation -->
-                    <div class="tab-content" data-tab="sim">
-                        <div class="video-grid video-grid-5">
-                            <div class="method-card">
-                                <video autoplay loop muted playsinline preload="metadata">
-                                    <source src="videos/go2_walk_figure_8/sim/mlp.mp4" type="video/mp4">
-                                </video>
-                                <div class="method-label">PPO</div>
-                            </div>
-                            <div class="method-card">
-                                <video autoplay loop muted playsinline preload="metadata">
-                                    <source src="videos/go2_walk_figure_8/sim/emlp.mp4" type="video/mp4">
-                                </video>
-                                <div class="method-label">PPO-EMLP</div>
-                            </div>
-                            <div class="method-card">
-                                <video autoplay loop muted playsinline preload="metadata">
-                                    <source src="videos/go2_walk_figure_8/sim/mlp_aug.mp4" type="video/mp4">
-                                </video>
-                                <div class="method-label">PPO-Aug</div>
-                            </div>
-                            <div class="method-card">
-                                <video autoplay loop muted playsinline preload="metadata">
-                                    <source src="videos/go2_walk_figure_8/sim/gnn.mp4" type="video/mp4">
-                                </video>
-                                <div class="method-label">MI-PPO</div>
-                            </div>
-                            <div class="method-card is-ours">
-                                <video autoplay loop muted playsinline preload="metadata">
-                                    <source src="videos/go2_walk_figure_8/sim/msgnn.mp4" type="video/mp4">
-                                </video>
-                                <div class="method-label is-ours">MS-PPO (ours)</div>
-                            </div>
+                    <div class="tab-content" data-tab="sim" id="tabs-figure8-sim" role="tabpanel" aria-labelledby="tabs-figure8-sim-tab">
+                        <div class="results-scroll" tabindex="0" role="region" aria-label="Figure-8 simulation · one 20-second period">
+                            <table class="results-table">
+                                <caption>Figure-8 simulation · one 20-second period</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Method</th>
+                                        <th scope="col">Eligible seeds</th>
+                                        <th scope="col">Linear TE (m/s) ↓</th>
+                                        <th scope="col">Angular TE (rad/s) ↓</th>
+                                        <th scope="col">Return ↑</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">PPO</th>
+                                        <td>5/5</td>
+                                        <td>0.084 ± 0.015</td>
+                                        <td>0.150 ± 0.007</td>
+                                        <td>13.295 ± 1.946</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">PPO-Aug</th>
+                                        <td>5/5</td>
+                                        <td>0.077 ± 0.020</td>
+                                        <td>0.146 ± 0.014</td>
+                                        <td>14.464 ± 0.483</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">PPO-EMLP</th>
+                                        <td>2/5</td>
+                                        <td>0.086 ± 0.006</td>
+                                        <td>0.130 ± 0.008</td>
+                                        <td>14.206 ± 0.179</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">BoT</th>
+                                        <td>5/5</td>
+                                        <td>0.170 ± 0.029</td>
+                                        <td>0.200 ± 0.030</td>
+                                        <td>11.910 ± 0.670</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">MI-PPO</th>
+                                        <td>5/5</td>
+                                        <td>0.089 ± 0.014</td>
+                                        <td>0.165 ± 0.007</td>
+                                        <td>14.442 ± 0.341</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">MI-PPO-Aug</th>
+                                        <td>4/5</td>
+                                        <td>0.293 ± 0.170</td>
+                                        <td>0.603 ± 0.266</td>
+                                        <td>6.945 ± 5.135</td>
+                                    </tr>
+                                    <tr class="is-ours">
+                                        <th scope="row">MS-PPO</th>
+                                        <td>5/5</td>
+                                        <td>0.061 ± 0.014</td>
+                                        <td>0.101 ± 0.011</td>
+                                        <td>14.679 ± 1.736</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
+                        <p class="experiment-note">Simulation metrics use eligible seeds: 2/5 for PPO-EMLP, 4/5 for MI-PPO-Aug, and 5/5 for each other method. Eligibility requires valid tracking samples after the 50-step warm-up in the no-fault Figure-8 test; the same eligible checkpoints are used for both Go2 tasks. Values are mean ± population standard deviation across eligible seeds. Tracking errors exclude warm-up; returns include it.</p>
                     </div>
                 </div>
-
-                <div class="divider" style="margin: 2rem 0;"></div>
-
-                <!-- =========================================================
-                     Section 2: Symmetry Generalization — Walk to One Side
-                     ========================================================= -->
+                <details class="result-details">
+                    <summary>Hardware tracking results</summary>
+                    <div class="results-scroll" tabindex="0" role="region" aria-label="Go2 hardware · errors over three consecutive cycles">
+                        <table class="results-table">
+                            <caption>Go2 hardware · errors over three consecutive cycles</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Method</th>
+                                    <th scope="col">Linear TE (m/s) ↓</th>
+                                    <th scope="col">Angular TE (rad/s) ↓</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th scope="row">PPO</th>
+                                    <td>0.222 ± 0.116</td>
+                                    <td>0.332 ± 0.240</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">PPO-Aug</th>
+                                    <td>0.217 ± 0.102</td>
+                                    <td>0.266 ± 0.146</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">PPO-EMLP</th>
+                                    <td>0.301 ± 0.143</td>
+                                    <td>0.291 ± 0.182</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">BoT</th>
+                                    <td>0.273 ± 0.141</td>
+                                    <td>0.333 ± 0.225</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">MI-PPO</th>
+                                    <td>0.239 ± 0.122</td>
+                                    <td>0.308 ± 0.177</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">MI-PPO-Aug</th>
+                                    <td>0.256 ± 0.115</td>
+                                    <td>0.243 ± 0.167</td>
+                                </tr>
+                                <tr class="is-ours">
+                                    <th scope="row">MS-PPO</th>
+                                    <td>0.211 ± 0.112</td>
+                                    <td>0.220 ± 0.125</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="experiment-note">Mean ± standard deviation over the recorded three-cycle evaluation. Linear tracking error is the mean Euclidean norm of planar velocity error; angular tracking error is the mean absolute yaw-rate error.</p>
+                </details>
+                <div class="divider section-divider">
+                </div>
                 <h2 id="symmetry" class="title is-4 mb-2">Symmetry Generalization — Walk to One Side (Unitree Go2)</h2>
-                <p class="exp-desc">
-                    Policies are trained using one-sided lateral and yaw-rate commands (left-turn only: $c_y \in [0, 0.6]$ m/s, $c_\omega \in [0, 1]$ rad/s), then evaluated on both the trained direction and the mirrored right-turn direction. The right-turn command is out-of-distribution (OOD). A policy with perfect $\mathbb{C}_2$ equivariance generalizes symmetrically without retraining. On the trot gait, MS-PPO achieves 51.8%, 46.6%, and 61.4% lower OOD tracking error (RMSE-O) compared to PPO, PPO-EMLP, and MI-PPO. On the pronk gait, which demands tighter whole-body coordination, MS-PPO is the only method maintaining low error in both directions. Each row below shows one method; columns show in-distribution (left turn) and OOD (right turn).
-                </p>
-
+                <p class="exp-desc">In this separate experiment, policies learn with $c_x\in[-1,1]$ m/s, $c_y\in[0,0.6]$ m/s, and $c_\omega\in[0,1]$ rad/s. Mirrored test commands reverse lateral velocity and yaw rate while preserving forward velocity. MS-PPO maintains comparable tracking errors on trained and unseen commands for both trot and pronk gaits. The hardware recordings below compare left turns (trained direction) with right turns (unseen direction), without retraining. This experiment compares PPO, PPO-EMLP, MI-PPO, and MS-PPO.</p>
                 <div class="tab-group" id="tabs-symmetry">
                     <div class="tab-buttons">
                         <button class="tab-btn is-active" onclick="switchTab('tabs-symmetry', 'trot', this)">Trot Gait</button>
                         <button class="tab-btn" onclick="switchTab('tabs-symmetry', 'pronk', this)">Pronk Gait</button>
                     </div>
-
                     <!-- Trot -->
                     <div class="tab-content is-active" data-tab="trot">
                         <div class="symmetry-comparison">
                             <!-- Header row -->
-                            <div></div>
-                            <div class="sym-col-header">Left Turn <span class="sym-tag">In-Distribution</span></div>
-                            <div class="sym-col-header">Right Turn <span class="sym-tag is-ood">OOD</span></div>
+                            <div>
+                            </div>
+                            <div class="sym-col-header">Left Turn <span class="sym-tag">In-Distribution</span>
+                            </div>
+                            <div class="sym-col-header">Right Turn <span class="sym-tag is-ood">OOD</span>
+                            </div>
                             <!-- PPO -->
                             <div class="sym-row-label">PPO</div>
                             <div class="method-card">
-                                <video autoplay loop muted playsinline preload="metadata">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/symmetry/mlp-trot-left-1-mosaic.jpg" aria-label="Symmetry generalization: mlp trot left 1 mosaic">
                                     <source src="videos/go2_walk_to_one_side/mlp-trot/mlp-trot-left-1-mosaic.mp4" type="video/mp4">
                                 </video>
                             </div>
                             <div class="method-card">
-                                <video autoplay loop muted playsinline preload="metadata">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/symmetry/mlp-trot-right-1-mosaic.jpg" aria-label="Symmetry generalization: mlp trot right 1 mosaic">
                                     <source src="videos/go2_walk_to_one_side/mlp-trot/mlp-trot-right-1-mosaic.mp4" type="video/mp4">
                                 </video>
                             </div>
                             <!-- PPO-EMLP -->
-                            <div class="sym-row-label">PPO-EMLP</div>
+                            <div class="sym-row-label">PPO-EMLP*</div>
                             <div class="method-card">
-                                <video autoplay loop muted playsinline preload="metadata">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/symmetry/emlp-trot-left-1-mosaic.jpg" aria-label="Symmetry generalization: emlp trot left 1 mosaic">
                                     <source src="videos/go2_walk_to_one_side/emlp-trot/emlp-trot-left-1-mosaic.mp4" type="video/mp4">
                                 </video>
                             </div>
                             <div class="method-card">
-                                <video autoplay loop muted playsinline preload="metadata">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/symmetry/emlp-trot-right-1-mosaic.jpg" aria-label="Symmetry generalization: emlp trot right 1 mosaic">
                                     <source src="videos/go2_walk_to_one_side/emlp-trot/emlp-trot-right-1-mosaic.mp4" type="video/mp4">
                                 </video>
                             </div>
                             <!-- MI-PPO -->
                             <div class="sym-row-label">MI-PPO</div>
                             <div class="method-card">
-                                <video autoplay loop muted playsinline preload="metadata">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/symmetry/gnn-trot-left-1-mosaic.jpg" aria-label="Symmetry generalization: gnn trot left 1 mosaic">
                                     <source src="videos/go2_walk_to_one_side/gnn-trot/gnn-trot-left-1-mosaic.mp4" type="video/mp4">
                                 </video>
                             </div>
                             <div class="method-card">
-                                <video autoplay loop muted playsinline preload="metadata">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/symmetry/gnn-trot-right-1-mosaic.jpg" aria-label="Symmetry generalization: gnn trot right 1 mosaic">
                                     <source src="videos/go2_walk_to_one_side/gnn-trot/gnn-trot-right-1-mosaic.mp4" type="video/mp4">
                                 </video>
                             </div>
                             <!-- MS-PPO -->
                             <div class="sym-row-label is-ours">MS-PPO</div>
                             <div class="method-card is-ours">
-                                <video autoplay loop muted playsinline preload="metadata">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/symmetry/msgnn-trot-left-1-mosaic.jpg" aria-label="Symmetry generalization: msgnn trot left 1 mosaic">
                                     <source src="videos/go2_walk_to_one_side/msgnn-trot/msgnn-trot-left-1-mosaic.mp4" type="video/mp4">
                                 </video>
                                 <div class="method-label is-ours">In-Distribution</div>
                             </div>
                             <div class="method-card is-ours">
-                                <video autoplay loop muted playsinline preload="metadata">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/symmetry/msgnn-trot-right-1-mosaic.jpg" aria-label="Symmetry generalization: msgnn trot right 1 mosaic">
                                     <source src="videos/go2_walk_to_one_side/msgnn-trot/msgnn-trot-right-1-mosaic.mp4" type="video/mp4">
                                 </video>
                                 <div class="method-label is-ours">OOD — Symmetric generalization</div>
                             </div>
                         </div>
                     </div>
-
                     <!-- Pronk -->
                     <div class="tab-content" data-tab="pronk">
                         <div class="symmetry-comparison">
                             <!-- Header row -->
-                            <div></div>
-                            <div class="sym-col-header">Left Turn <span class="sym-tag">In-Distribution</span></div>
-                            <div class="sym-col-header">Right Turn <span class="sym-tag is-ood">OOD</span></div>
+                            <div>
+                            </div>
+                            <div class="sym-col-header">Left Turn <span class="sym-tag">In-Distribution</span>
+                            </div>
+                            <div class="sym-col-header">Right Turn <span class="sym-tag is-ood">OOD</span>
+                            </div>
                             <!-- PPO -->
                             <div class="sym-row-label">PPO</div>
                             <div class="method-card">
-                                <video autoplay loop muted playsinline preload="none">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/symmetry/mlp-pronk-left-1-mosaic.jpg" aria-label="Symmetry generalization: mlp pronk left 1 mosaic">
                                     <source src="videos/go2_walk_to_one_side/mlp-pronk/mlp-pronk-left-1-mosaic.mp4" type="video/mp4">
                                 </video>
                             </div>
                             <div class="method-card">
-                                <video autoplay loop muted playsinline preload="none">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/symmetry/mlp-pronk-right-1-mosaic.jpg" aria-label="Symmetry generalization: mlp pronk right 1 mosaic">
                                     <source src="videos/go2_walk_to_one_side/mlp-pronk/mlp-pronk-right-1-mosaic.mp4" type="video/mp4">
                                 </video>
                             </div>
                             <!-- PPO-EMLP -->
-                            <div class="sym-row-label">PPO-EMLP</div>
+                            <div class="sym-row-label">PPO-EMLP*</div>
                             <div class="method-card">
-                                <video autoplay loop muted playsinline preload="none">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/symmetry/emlp-pronk-left-1-mosaic.jpg" aria-label="Symmetry generalization: emlp pronk left 1 mosaic">
                                     <source src="videos/go2_walk_to_one_side/emlp-pronk/emlp-pronk-left-1-mosaic.mp4" type="video/mp4">
                                 </video>
                             </div>
                             <div class="method-card">
-                                <video autoplay loop muted playsinline preload="none">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/symmetry/emlp-pronk-right-1-mosaic.jpg" aria-label="Symmetry generalization: emlp pronk right 1 mosaic">
                                     <source src="videos/go2_walk_to_one_side/emlp-pronk/emlp-pronk-right-1-mosaic.mp4" type="video/mp4">
                                 </video>
                             </div>
                             <!-- MI-PPO -->
                             <div class="sym-row-label">MI-PPO</div>
                             <div class="method-card">
-                                <video autoplay loop muted playsinline preload="none">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/symmetry/gnn-pronk-left-1-mosaic.jpg" aria-label="Symmetry generalization: gnn pronk left 1 mosaic">
                                     <source src="videos/go2_walk_to_one_side/gnn-pronk/gnn-pronk-left-1-mosaic.mp4" type="video/mp4">
                                 </video>
                             </div>
                             <div class="method-card">
-                                <video autoplay loop muted playsinline preload="none">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/symmetry/gnn-pronk-right-1-mosaic.jpg" aria-label="Symmetry generalization: gnn pronk right 1 mosaic">
                                     <source src="videos/go2_walk_to_one_side/gnn-pronk/gnn-pronk-right-1-mosaic.mp4" type="video/mp4">
                                 </video>
                             </div>
                             <!-- MS-PPO -->
                             <div class="sym-row-label is-ours">MS-PPO</div>
                             <div class="method-card is-ours">
-                                <video autoplay loop muted playsinline preload="none">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/symmetry/msgnn-pronk-left-1.jpg" aria-label="Symmetry generalization: msgnn pronk left 1">
                                     <source src="videos/go2_walk_to_one_side/msgnn-pronk/msgnn-pronk-left-1.MP4" type="video/mp4">
                                 </video>
                                 <div class="method-label is-ours">In-Distribution</div>
                             </div>
                             <div class="method-card is-ours">
-                                <video autoplay loop muted playsinline preload="none">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/symmetry/msgnn-pronk-right-1.jpg" aria-label="Symmetry generalization: msgnn pronk right 1">
                                     <source src="videos/go2_walk_to_one_side/msgnn-pronk/msgnn-pronk-right-1.MP4" type="video/mp4">
                                 </video>
                                 <div class="method-label is-ours">OOD — Symmetric generalization</div>
@@ -312,220 +392,334 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="divider" style="margin: 2rem 0;"></div>
-
-                <!-- =========================================================
-                     Section 3: Joint Failure Tolerance
-                     ========================================================= -->
+                <p class="experiment-note">*The symmetry-generalization experiment uses a reduced-command PPO-EMLP variant trained with $c_x=0$ m/s, as described in the supplementary experiment.</p>
+                <div class="divider section-divider">
+                </div>
                 <h2 id="joint-failure" class="title is-4 mb-2">Joint Failure Tolerance (Unitree Go2)</h2>
-                <p class="exp-desc">
-                    The <em>joint zero-torque</em> experiment evaluates robustness to localized actuator failures. The robot is commanded to walk forward at 1 m/s while one specified joint receives zero torque, forcing the policy to compensate with the remaining joints. MS-PPO achieves the best average reward under hip- and calf-failures and remains competitive under thigh-failures. Unlike a flat $\mathbb{C}_2$-equivariant MLP that globally couples both sides of the robot, MS-PPO localizes the disabled joint to its graph node and propagates compensation through the kinematic topology. The hardware and simulation videos below show the rear-right calf failure case.
-                </p>
-
+                <p class="exp-desc">The robot is commanded to walk forward at <strong>1 m/s</strong> with the <strong>rear-right calf joint disabled</strong> on hardware. All methods share the same training mixture: 70% nominal episodes and 30% single-joint-failure episodes, with the failed joint sampled uniformly from all 12 joints. The policy receives 30 frames of observations and previous actions (about 0.6 s), without the fault identity. MS-PPO achieves the highest mean simulation return for all three failure types: hip, thigh, and calf.</p>
+                <p class="exp-desc">On hardware, two trials are recorded per method; the longer-surviving trial is used for visualization and quantitative evaluation. In these selected trials, MS-PPO reduces linear and angular tracking errors by <strong>25.4%</strong> and <strong>49.4%</strong>, respectively, relative to the strongest baseline for each metric.</p>
                 <div class="tab-group" id="tabs-failure">
-                    <div class="tab-buttons">
-                        <button class="tab-btn is-active" onclick="switchTab('tabs-failure', 'real', this)">Hardware</button>
-                        <button class="tab-btn" onclick="switchTab('tabs-failure', 'sim', this)">Simulation</button>
+                    <div class="tab-buttons" role="tablist" aria-label="Experiment views">
+                        <button type="button" class="tab-btn is-active" id="tabs-failure-real-tab" role="tab" aria-selected="true" aria-controls="tabs-failure-real" tabindex="0" onclick="switchTab('tabs-failure', 'real', this)">Hardware</button>
+                        <button type="button" class="tab-btn" id="tabs-failure-sim-tab" role="tab" aria-selected="false" aria-controls="tabs-failure-sim" tabindex="-1" onclick="switchTab('tabs-failure', 'sim', this)">Simulation results</button>
                     </div>
-
-                    <!-- Hardware -->
-                    <div class="tab-content is-active" data-tab="real">
-                        <div class="video-grid video-grid-5">
+                    <div class="tab-content is-active" data-tab="real" id="tabs-failure-real" role="tabpanel" aria-labelledby="tabs-failure-real-tab">
+                        <div class="video-grid video-grid-7">
                             <div class="method-card">
-                                <video autoplay loop muted playsinline preload="metadata">
-                                    <source src="videos/go2_joint_failure/real/MLP.MP4" type="video/mp4">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/joint-failure/PPO.jpg" aria-label="Rear-right calf failure: PPO">
+                                    <source src="videos/web/joint-failure/PPO.mp4" type="video/mp4">
                                 </video>
                                 <div class="method-label">PPO</div>
                             </div>
                             <div class="method-card">
-                                <video autoplay loop muted playsinline preload="metadata">
-                                    <source src="videos/go2_joint_failure/real/EMLP.MP4" type="video/mp4">
-                                </video>
-                                <div class="method-label">PPO-EMLP</div>
-                            </div>
-                            <div class="method-card">
-                                <video autoplay loop muted playsinline preload="metadata">
-                                    <source src="videos/go2_joint_failure/real/MLP_aug.MP4" type="video/mp4">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/joint-failure/PPO-Aug.jpg" aria-label="Rear-right calf failure: PPO-Aug">
+                                    <source src="videos/web/joint-failure/PPO-Aug.mp4" type="video/mp4">
                                 </video>
                                 <div class="method-label">PPO-Aug</div>
                             </div>
                             <div class="method-card">
-                                <video autoplay loop muted playsinline preload="metadata">
-                                    <source src="videos/go2_joint_failure/real/GNN.MP4" type="video/mp4">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/joint-failure/PPO-EMLP.jpg" aria-label="Rear-right calf failure: PPO-EMLP">
+                                    <source src="videos/web/joint-failure/PPO-EMLP.mp4" type="video/mp4">
+                                </video>
+                                <div class="method-label">PPO-EMLP</div>
+                            </div>
+                            <div class="method-card">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/joint-failure/BoT.jpg" aria-label="Rear-right calf failure: BoT">
+                                    <source src="videos/web/joint-failure/BoT.mp4" type="video/mp4">
+                                </video>
+                                <div class="method-label">BoT</div>
+                            </div>
+                            <div class="method-card">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/joint-failure/MI-PPO.jpg" aria-label="Rear-right calf failure: MI-PPO">
+                                    <source src="videos/web/joint-failure/MI-PPO.mp4" type="video/mp4">
                                 </video>
                                 <div class="method-label">MI-PPO</div>
                             </div>
+                            <div class="method-card">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/joint-failure/MI-PPO-Aug.jpg" aria-label="Rear-right calf failure: MI-PPO-Aug">
+                                    <source src="videos/web/joint-failure/MI-PPO-Aug.mp4" type="video/mp4">
+                                </video>
+                                <div class="method-label">MI-PPO-Aug</div>
+                            </div>
                             <div class="method-card is-ours">
-                                <video autoplay loop muted playsinline preload="metadata">
-                                    <source src="videos/go2_joint_failure/real/MSGNN.MP4" type="video/mp4">
+                                <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/joint-failure/MS-PPO.jpg" aria-label="Rear-right calf failure: MS-PPO">
+                                    <source src="videos/web/joint-failure/MS-PPO.mp4" type="video/mp4">
                                 </video>
                                 <div class="method-label is-ours">MS-PPO (ours)</div>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Simulation -->
-                    <div class="tab-content" data-tab="sim">
-                        <div class="video-grid video-grid-5">
-                            <div class="method-card">
-                                <video autoplay loop muted playsinline preload="none">
-                                    <source src="videos/go2_joint_failure/sim/mlp/fault-leg/play_viz_new-net=mlp-ckpt=4800-cmd=all-fault=RR-calf_zero_torque_start0.mp4" type="video/mp4">
-                                </video>
-                                <div class="method-label">PPO</div>
-                            </div>
-                            <div class="method-card">
-                                <video autoplay loop muted playsinline preload="none">
-                                    <source src="videos/go2_joint_failure/sim/emlp/fault-leg/play_viz_new-net=emlp-ckpt=4800-cmd=all-fault=RR-calf_zero_torque_start0.mp4" type="video/mp4">
-                                </video>
-                                <div class="method-label">PPO-EMLP</div>
-                            </div>
-                            <div class="method-card">
-                                <video autoplay loop muted playsinline preload="none">
-                                    <source src="videos/go2_joint_failure/sim/mlpaug/fault-leg/play_viz_new-net=mlp_aug-ckpt=4800-cmd=all-fault=RR-calf_zero_torque_start0.mp4" type="video/mp4">
-                                </video>
-                                <div class="method-label">PPO-Aug</div>
-                            </div>
-                            <div class="method-card">
-                                <video autoplay loop muted playsinline preload="none">
-                                    <source src="videos/go2_joint_failure/sim/gnn/fault-leg/play_viz_new-net=gnn-ckpt=4800-cmd=all-fault=RR-calf_zero_torque_start0.mp4" type="video/mp4">
-                                </video>
-                                <div class="method-label">MI-PPO</div>
-                            </div>
-                            <div class="method-card is-ours">
-                                <video autoplay loop muted playsinline preload="none">
-                                    <source src="videos/go2_joint_failure/sim/msgnn/fault-leg/play_viz_new-net=msgnn-ckpt=4800-cmd=all-fault=RR-calf_zero_torque_start0.mp4" type="video/mp4">
-                                </video>
-                                <div class="method-label is-ours">MS-PPO (ours)</div>
-                            </div>
+                    <div class="tab-content" data-tab="sim" id="tabs-failure-sim" role="tabpanel" aria-labelledby="tabs-failure-sim-tab">
+                        <p class="experiment-note">All 12 single-joint failures are evaluated for up to 1,000 steps, with 100 parallel environments per seed and fault condition.</p>
+                        <figure class="result-figure"><img src="assets/joint-failure-results.png" loading="lazy" width="2600" height="1011" alt="Simulation first-episode returns for seven methods across all 12 disabled Go2 joints.">
+                            <figcaption>First-episode return for each disabled joint; bars show means and standard deviations across eligible seeds.</figcaption>
+                        </figure>
+                        <div class="results-scroll" tabindex="0" role="region" aria-label="Simulation returns by joint type">
+                            <table class="results-table">
+                                <caption>Simulation returns by joint type</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Method</th>
+                                        <th scope="col">Hip return ↑</th>
+                                        <th scope="col">Thigh return ↑</th>
+                                        <th scope="col">Calf return ↑</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">PPO</th>
+                                        <td>4.797 ± 2.158</td>
+                                        <td>10.244 ± 1.634</td>
+                                        <td>2.217 ± 1.884</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">PPO-Aug</th>
+                                        <td>7.913 ± 2.150</td>
+                                        <td>11.869 ± 1.741</td>
+                                        <td>2.907 ± 2.428</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">PPO-EMLP</th>
+                                        <td>4.599 ± 3.134</td>
+                                        <td>10.763 ± 0.703</td>
+                                        <td>2.332 ± 2.024</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">BoT</th>
+                                        <td>0.738 ± 1.040</td>
+                                        <td>1.827 ± 2.071</td>
+                                        <td>1.048 ± 1.030</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">MI-PPO</th>
+                                        <td>5.929 ± 2.821</td>
+                                        <td>10.802 ± 2.087</td>
+                                        <td>2.291 ± 1.984</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">MI-PPO-Aug</th>
+                                        <td>2.578 ± 4.311</td>
+                                        <td>3.597 ± 5.835</td>
+                                        <td>1.627 ± 2.421</td>
+                                    </tr>
+                                    <tr class="is-ours">
+                                        <th scope="row">MS-PPO</th>
+                                        <td>9.418 ± 1.606</td>
+                                        <td>12.719 ± 1.456</td>
+                                        <td>4.023 ± 3.045</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
+                        <p class="experiment-note">Simulation metrics use eligible seeds: 2/5 for PPO-EMLP, 4/5 for MI-PPO-Aug, and 5/5 for each other method. Eligibility requires valid tracking samples after the 50-step warm-up in the no-fault Figure-8 test; the same eligible checkpoints are used for both Go2 tasks. Returns are summarized as mean ± population standard deviation across eligible seed-leg pairs for each joint type.</p>
                     </div>
                 </div>
-
-                <div class="divider" style="margin: 2rem 0;"></div>
-
-                <!-- =========================================================
-                     Section 4: Dual-Robot Collaboration under Failure
-                     ========================================================= -->
+                <details class="result-details">
+                    <summary>Hardware tracking results</summary>
+                    <div class="results-scroll" tabindex="0" role="region" aria-label="Go2 hardware · rear-right calf zero-torque failure">
+                        <table class="results-table">
+                            <caption>Go2 hardware · rear-right calf zero-torque failure</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Method</th>
+                                    <th scope="col">Linear TE (m/s) ↓</th>
+                                    <th scope="col">Angular TE (rad/s) ↓</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th scope="row">PPO</th>
+                                    <td>1.203 ± 0.247</td>
+                                    <td>0.486 ± 0.378</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">PPO-Aug</th>
+                                    <td>1.209 ± 0.183</td>
+                                    <td>0.892 ± 0.927</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">PPO-EMLP</th>
+                                    <td>1.673 ± 1.810</td>
+                                    <td>0.714 ± 0.553</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">BoT</th>
+                                    <td>1.241 ± 0.222</td>
+                                    <td>0.900 ± 0.473</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">MI-PPO</th>
+                                    <td>0.825 ± 0.287</td>
+                                    <td>0.580 ± 0.550</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">MI-PPO-Aug</th>
+                                    <td>0.543 ± 0.337</td>
+                                    <td>0.538 ± 0.473</td>
+                                </tr>
+                                <tr class="is-ours">
+                                    <th scope="row">MS-PPO</th>
+                                    <td>0.405 ± 0.263</td>
+                                    <td>0.246 ± 0.216</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="experiment-note">Mean ± standard deviation within the selected longer-surviving trial. Linear tracking error is the mean Euclidean norm of planar velocity error; angular tracking error is the mean absolute yaw-rate error.</p>
+                </details>
+                <div class="divider section-divider">
+                </div>
                 <h2 id="collaboration" class="title is-4 mb-2">Dual-Robot Collaboration under Joint Failure (Unitree Go2)</h2>
-                <p class="exp-desc">
-                    Two Go2 robots are connected in a lead-follower configuration; the lead robot's rear-right calf joint is disabled. This setup combines actuator failure with interaction disturbance, since the rear robot can drag or perturb the faulted lead. PPO and PPO-EMLP lose balance by around 6 seconds. PPO-Aug survives longer but develops large rotational drift that destabilizes both robots. MI-PPO drifts laterally despite its graph backbone. MS-PPO maintains forward heading, speed, and stable pulling behavior throughout, demonstrating that jointly encoding kinematic topology and morphological symmetry produces the most robust behavior under combined failure and interaction disturbances.
-                </p>
-
-                <!-- Mosaic overview video -->
-                <div class="featured-video">
-                    <video autoplay controls loop muted playsinline preload="metadata">
-                        <source src="videos/go2_collaboration/real/msgnn_mosaic.mp4" type="video/mp4">
-                    </video>
-                </div>
-
-                <!-- Per-method comparison -->
-                <p style="font-size: 0.85em; margin-bottom: 0.75rem; color: var(--text); opacity: 0.8;">Per-method recordings:</p>
-                <div class="video-grid video-grid-5">
+                <p class="exp-desc">Two Go2 robots are connected in a lead-follower configuration. The lead robot tracks a <strong>1 m/s forward command</strong> with its <strong>rear-right calf joint disabled</strong>, while interaction with the rear robot introduces additional dragging and perturbations. MS-PPO maintains stable locomotion in the recorded sequence despite the combined actuator failure and interaction disturbances. These recordings provide a qualitative comparison across all seven methods.</p>
+                <div class="video-grid video-grid-7">
                     <div class="method-card">
-                        <video autoplay loop muted playsinline preload="metadata">
-                            <source src="videos/go2_collaboration/real/mlp.mp4" type="video/mp4">
+                        <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/collaboration/PPO.jpg" aria-label="Dual-robot collaboration: PPO">
+                            <source src="videos/web/collaboration/PPO.mp4" type="video/mp4">
                         </video>
                         <div class="method-label">PPO</div>
                     </div>
                     <div class="method-card">
-                        <video autoplay loop muted playsinline preload="metadata">
-                            <source src="videos/go2_collaboration/real/emlp.MP4" type="video/mp4">
-                        </video>
-                        <div class="method-label">PPO-EMLP</div>
-                    </div>
-                    <div class="method-card">
-                        <video autoplay loop muted playsinline preload="metadata">
-                            <source src="videos/go2_collaboration/real/mlp_aug.mp4" type="video/mp4">
+                        <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/collaboration/PPO-Aug.jpg" aria-label="Dual-robot collaboration: PPO-Aug">
+                            <source src="videos/web/collaboration/PPO-Aug.mp4" type="video/mp4">
                         </video>
                         <div class="method-label">PPO-Aug</div>
                     </div>
                     <div class="method-card">
-                        <video autoplay loop muted playsinline preload="metadata">
-                            <source src="videos/go2_collaboration/real/gnn.mp4" type="video/mp4">
+                        <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/collaboration/PPO-EMLP.jpg" aria-label="Dual-robot collaboration: PPO-EMLP">
+                            <source src="videos/web/collaboration/PPO-EMLP.mp4" type="video/mp4">
+                        </video>
+                        <div class="method-label">PPO-EMLP</div>
+                    </div>
+                    <div class="method-card">
+                        <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/collaboration/BoT.jpg" aria-label="Dual-robot collaboration: BoT">
+                            <source src="videos/web/collaboration/BoT.mp4" type="video/mp4">
+                        </video>
+                        <div class="method-label">BoT</div>
+                    </div>
+                    <div class="method-card">
+                        <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/collaboration/MI-PPO.jpg" aria-label="Dual-robot collaboration: MI-PPO">
+                            <source src="videos/web/collaboration/MI-PPO.mp4" type="video/mp4">
                         </video>
                         <div class="method-label">MI-PPO</div>
                     </div>
+                    <div class="method-card">
+                        <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/collaboration/MI-PPO-Aug.jpg" aria-label="Dual-robot collaboration: MI-PPO-Aug">
+                            <source src="videos/web/collaboration/MI-PPO-Aug.mp4" type="video/mp4">
+                        </video>
+                        <div class="method-label">MI-PPO-Aug</div>
+                    </div>
                     <div class="method-card is-ours">
-                        <video autoplay loop muted playsinline preload="metadata">
-                            <source src="videos/go2_collaboration/real/msgnn_mosaic.mp4" type="video/mp4">
+                        <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/collaboration/MS-PPO.jpg" aria-label="Dual-robot collaboration: MS-PPO">
+                            <source src="videos/web/collaboration/MS-PPO.mp4" type="video/mp4">
                         </video>
                         <div class="method-label is-ours">MS-PPO (ours)</div>
                     </div>
                 </div>
-
-                <div class="divider" style="margin: 2rem 0;"></div>
-
-                <!-- =========================================================
-                     Section 5: Humanoid G1 Locomotion
-                     ========================================================= -->
-                <h2 id="humanoid" class="title is-4 mb-2">Humanoid Locomotion (Unitree G1)</h2>
-                <p class="exp-desc">
-                    MS-PPO is evaluated on the Unitree G1 humanoid, which has a significantly more complex morphology than Go2, with higher degrees of freedom and a different kinematic topology. Policies are deployed zero-shot on the physical robot without fine-tuning. Among the methods that deploy, MS-PPO achieves the lowest forward velocity tracking MSE ($0.5671 \pm 0.1418$ m/s). 
-                </p>
-
-                <div style="max-width: 480px;">
-                    <div class="method-card is-ours">
-                        <video autoplay loop muted playsinline preload="metadata">
-                            <source src="videos/g1_locomotion/real/MS-PPO-2-mosaic.mp4" type="video/mp4">
+                <div class="divider section-divider">
+                </div>
+                <h2 id="humanoid" class="title is-4 mb-2">Humanoid Whole-Body Locomotion (Unitree G1)</h2>
+                <p class="exp-desc">All seven methods are trained with <strong>FastSAC</strong> in Holosoma on the same <strong>29-DoF whole-body task</strong>: 12 leg joints, 3 waist joints, and 14 arm joints. Our representation is instantiated as <strong>MS-SAC</strong>, using an equivariant graph actor and an invariant critic. Deterministic policies transfer to the physical G1 without fine-tuning, tracking a <strong>0.7 m/s forward command</strong>.</p>
+                <p class="exp-desc">MS-SAC achieves the highest mean simulation reward and the lowest mean linear and angular tracking errors in simulation and on hardware. Across three hardware trials per method, its linear tracking error is <strong>0.146 ± 0.009 m/s</strong>, approximately 14% lower than SAC-EMLP; angular tracking error is <strong>0.139 ± 0.007 rad/s</strong>.</p>
+                <div class="video-grid video-grid-7">
+                    <div class="method-card">
+                        <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/g1/SAC.jpg" aria-label="G1 whole-body locomotion: SAC">
+                            <source src="videos/web/g1/SAC.mp4" type="video/mp4">
                         </video>
-                        <div class="method-label is-ours">MS-PPO (ours)</div>
+                        <div class="method-label">SAC</div>
+                    </div>
+                    <div class="method-card">
+                        <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/g1/SAC-Aug.jpg" aria-label="G1 whole-body locomotion: SAC-Aug">
+                            <source src="videos/web/g1/SAC-Aug.mp4" type="video/mp4">
+                        </video>
+                        <div class="method-label">SAC-Aug</div>
+                    </div>
+                    <div class="method-card">
+                        <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/g1/SAC-EMLP.jpg" aria-label="G1 whole-body locomotion: SAC-EMLP">
+                            <source src="videos/web/g1/SAC-EMLP.mp4" type="video/mp4">
+                        </video>
+                        <div class="method-label">SAC-EMLP</div>
+                    </div>
+                    <div class="method-card">
+                        <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/g1/SAC-BoT.jpg" aria-label="G1 whole-body locomotion: SAC-BoT">
+                            <source src="videos/web/g1/SAC-BoT.mp4" type="video/mp4">
+                        </video>
+                        <div class="method-label">SAC-BoT</div>
+                    </div>
+                    <div class="method-card">
+                        <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/g1/MI-SAC.jpg" aria-label="G1 whole-body locomotion: MI-SAC">
+                            <source src="videos/web/g1/MI-SAC.mp4" type="video/mp4">
+                        </video>
+                        <div class="method-label">MI-SAC</div>
+                    </div>
+                    <div class="method-card">
+                        <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/g1/MI-SAC-Aug.jpg" aria-label="G1 whole-body locomotion: MI-SAC-Aug">
+                            <source src="videos/web/g1/MI-SAC-Aug.mp4" type="video/mp4">
+                        </video>
+                        <div class="method-label">MI-SAC-Aug</div>
+                    </div>
+                    <div class="method-card is-ours">
+                        <video controls loop muted playsinline preload="none" data-autoplay poster="assets/posters/g1/MS-SAC.jpg" aria-label="G1 whole-body locomotion: MS-SAC">
+                            <source src="videos/web/g1/MS-SAC.mp4" type="video/mp4">
+                        </video>
+                        <div class="method-label is-ours">MS-SAC (ours)</div>
                     </div>
                 </div>
-
+                <details class="result-details">
+                    <summary>Hardware tracking results</summary>
+                    <div class="results-scroll" tabindex="0" role="region" aria-label="G1 hardware · 0.7 m/s forward command">
+                        <table class="results-table">
+                            <caption>G1 hardware · 0.7 m/s forward command</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Method</th>
+                                    <th scope="col">Linear TE (m/s) ↓</th>
+                                    <th scope="col">Angular TE (rad/s) ↓</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th scope="row">SAC</th>
+                                    <td>0.185 ± 0.019</td>
+                                    <td>0.158 ± 0.011</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">SAC-Aug</th>
+                                    <td>0.191 ± 0.005</td>
+                                    <td>0.188 ± 0.017</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">SAC-EMLP</th>
+                                    <td>0.170 ± 0.004</td>
+                                    <td>0.140 ± 0.024</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">SAC-BoT</th>
+                                    <td>0.289 ± 0.015</td>
+                                    <td>0.154 ± 0.034</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">MI-SAC</th>
+                                    <td>0.215 ± 0.017</td>
+                                    <td>0.258 ± 0.061</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">MI-SAC-Aug</th>
+                                    <td>0.188 ± 0.017</td>
+                                    <td>0.222 ± 0.033</td>
+                                </tr>
+                                <tr class="is-ours">
+                                    <th scope="row">MS-SAC</th>
+                                    <td>0.146 ± 0.009</td>
+                                    <td>0.139 ± 0.007</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="experiment-note">Mean ± standard deviation across three trials per method. Planar base velocity is reconstructed offline from foot kinematics and IMU data under a stance-foot assumption; yaw rate comes directly from the IMU gyroscope.</p>
+                </details>
             </div><!-- .content -->
         </div><!-- .container -->
     </section>
-
-    <script>
-        // Auto-hide method cards whose video fails to load
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.method-card video').forEach(video => {
-                video.addEventListener('error', () => {
-                    const card = video.closest('.method-card');
-                    if (card) card.style.display = 'none';
-                });
-            });
-        });
-
-        // Tab switching with lazy video loading
-        function switchTab(groupId, tabName, btn) {
-            const group = document.getElementById(groupId);
-            group.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('is-active'));
-            btn.classList.add('is-active');
-            group.querySelectorAll('.tab-content').forEach(c => c.classList.remove('is-active'));
-            const newTab = group.querySelector(`.tab-content[data-tab="${tabName}"]`);
-            newTab.classList.add('is-active');
-            // Load and play videos that were deferred
-            newTab.querySelectorAll('video').forEach(video => {
-                if (video.getAttribute('preload') === 'none') {
-                    video.setAttribute('preload', 'auto');
-                    video.load();
-                    video.play().catch(() => {});
-                }
-            });
-        }
-
-        // Dark mode
-        const updateTheme = (isDark) => {
-            const html = document.documentElement;
-            const themeIcon = document.getElementById('theme-icon');
-            html.setAttribute('data-theme', isDark ? 'dark' : 'light');
-            themeIcon.classList.remove('fa-moon', 'fa-sun');
-            themeIcon.classList.add(isDark ? 'fa-sun' : 'fa-moon');
-            document.querySelectorAll('img[data-dark-src]').forEach(img => {
-                const desiredSrc = img.getAttribute(isDark ? 'data-dark-src' : 'data-light-src');
-                if (!img.src.includes(desiredSrc)) {
-                    img.src = desiredSrc + '?v=' + Date.now();
-                }
-            });
-        };
-
-        const toggleDarkMode = () => {
-            updateTheme(document.documentElement.getAttribute('data-theme') !== 'dark');
-        };
-
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => updateTheme(e.matches));
-    </script>
+    <script src="site.js" defer></script>
 </body>
 </html>

@@ -1,0 +1,155 @@
+{
+  "description": "Browser-compatible ICRA 2027 video derivatives. Original source files are preserved.",
+  "encoding": {
+    "video": "H.264, yuv420p, original resolution and frame rate, CRF 25",
+    "audio": "AAC 128 kbit/s when present",
+    "fast_start": true
+  },
+  "videos": [
+    {
+      "source": "video_new.mp4",
+      "web": "overview.mp4",
+      "poster": "../../assets/posters/overview.jpg"
+    },
+    {
+      "source": "videos/go2_walk_figure_8/one_cycle_version/PPO.mp4",
+      "web": "figure8/one-cycle/PPO.mp4",
+      "poster": "../../assets/posters/figure8/one-cycle/PPO.jpg"
+    },
+    {
+      "source": "videos/go2_walk_figure_8/one_cycle_version/PPO-Aug.mp4",
+      "web": "figure8/one-cycle/PPO-Aug.mp4",
+      "poster": "../../assets/posters/figure8/one-cycle/PPO-Aug.jpg"
+    },
+    {
+      "source": "videos/go2_walk_figure_8/one_cycle_version/PPO-EMLP.mp4",
+      "web": "figure8/one-cycle/PPO-EMLP.mp4",
+      "poster": "../../assets/posters/figure8/one-cycle/PPO-EMLP.jpg"
+    },
+    {
+      "source": "videos/go2_walk_figure_8/one_cycle_version/BoT.mp4",
+      "web": "figure8/one-cycle/BoT.mp4",
+      "poster": "../../assets/posters/figure8/one-cycle/BoT.jpg"
+    },
+    {
+      "source": "videos/go2_walk_figure_8/one_cycle_version/MI-PPO.mp4",
+      "web": "figure8/one-cycle/MI-PPO.mp4",
+      "poster": "../../assets/posters/figure8/one-cycle/MI-PPO.jpg"
+    },
+    {
+      "source": "videos/go2_walk_figure_8/one_cycle_version/MI-PPO-Aug.mp4",
+      "web": "figure8/one-cycle/MI-PPO-Aug.mp4",
+      "poster": "../../assets/posters/figure8/one-cycle/MI-PPO-Aug.jpg"
+    },
+    {
+      "source": "videos/go2_walk_figure_8/one_cycle_version/MS-PPO.mp4",
+      "web": "figure8/one-cycle/MS-PPO.mp4",
+      "poster": "../../assets/posters/figure8/one-cycle/MS-PPO.jpg"
+    },
+    {
+      "source": "videos/go2_joint_failure/MLP.MP4",
+      "web": "joint-failure/PPO.mp4",
+      "poster": "../../assets/posters/joint-failure/PPO.jpg"
+    },
+    {
+      "source": "videos/go2_joint_failure/MLP_aug.MP4",
+      "web": "joint-failure/PPO-Aug.mp4",
+      "poster": "../../assets/posters/joint-failure/PPO-Aug.jpg"
+    },
+    {
+      "source": "videos/go2_joint_failure/Emlp zero torque 151643.MP4",
+      "web": "joint-failure/PPO-EMLP.mp4",
+      "poster": "../../assets/posters/joint-failure/PPO-EMLP.jpg"
+    },
+    {
+      "source": "videos/go2_joint_failure/Physbot zero torque 151900.MP4",
+      "web": "joint-failure/BoT.mp4",
+      "poster": "../../assets/posters/joint-failure/BoT.jpg"
+    },
+    {
+      "source": "videos/go2_joint_failure/GNN.MP4",
+      "web": "joint-failure/MI-PPO.mp4",
+      "poster": "../../assets/posters/joint-failure/MI-PPO.jpg"
+    },
+    {
+      "source": "videos/go2_joint_failure/Gnn aug zerotorque 152626.MP4",
+      "web": "joint-failure/MI-PPO-Aug.mp4",
+      "poster": "../../assets/posters/joint-failure/MI-PPO-Aug.jpg"
+    },
+    {
+      "source": "videos/go2_joint_failure/Msgnn zero torque vlyjdn3h 150516.MP4",
+      "web": "joint-failure/MS-PPO.mp4",
+      "poster": "../../assets/posters/joint-failure/MS-PPO.jpg"
+    },
+    {
+      "source": "videos/go2_collaboration/MLP/mlp.mp4",
+      "web": "collaboration/PPO.mp4",
+      "poster": "../../assets/posters/collaboration/PPO.jpg"
+    },
+    {
+      "source": "videos/go2_collaboration/MLP_Aug/mlp_aug.mp4",
+      "web": "collaboration/PPO-Aug.mp4",
+      "poster": "../../assets/posters/collaboration/PPO-Aug.jpg"
+    },
+    {
+      "source": "videos/go2_collaboration/EMLP/emlp.MP4",
+      "web": "collaboration/PPO-EMLP.mp4",
+      "poster": "../../assets/posters/collaboration/PPO-EMLP.jpg"
+    },
+    {
+      "source": "videos/go2_collaboration/physbot/physbot.MP4",
+      "web": "collaboration/BoT.mp4",
+      "poster": "../../assets/posters/collaboration/BoT.jpg"
+    },
+    {
+      "source": "videos/go2_collaboration/GNN/gnn.mp4",
+      "web": "collaboration/MI-PPO.mp4",
+      "poster": "../../assets/posters/collaboration/MI-PPO.jpg"
+    },
+    {
+      "source": "videos/go2_collaboration/gnn_aug/gnnaug.MP4",
+      "web": "collaboration/MI-PPO-Aug.mp4",
+      "poster": "../../assets/posters/collaboration/MI-PPO-Aug.jpg"
+    },
+    {
+      "source": "videos/go2_collaboration/MSGNN/msgnn_mosaic.mp4",
+      "web": "collaboration/MS-PPO.mp4",
+      "poster": "../../assets/posters/collaboration/MS-PPO.jpg"
+    },
+    {
+      "source": "videos/g1_locomotion/SAC-3-blur.mp4",
+      "web": "g1/SAC.mp4",
+      "poster": "../../assets/posters/g1/SAC.jpg"
+    },
+    {
+      "source": "videos/g1_locomotion/SAC-Aug-2-blur.mp4",
+      "web": "g1/SAC-Aug.mp4",
+      "poster": "../../assets/posters/g1/SAC-Aug.jpg"
+    },
+    {
+      "source": "videos/g1_locomotion/SAC-EMLP-3-blur.mp4",
+      "web": "g1/SAC-EMLP.mp4",
+      "poster": "../../assets/posters/g1/SAC-EMLP.jpg"
+    },
+    {
+      "source": "videos/g1_locomotion/BoT-3-blur.mp4",
+      "web": "g1/SAC-BoT.mp4",
+      "poster": "../../assets/posters/g1/SAC-BoT.jpg"
+    },
+    {
+      "source": "videos/g1_locomotion/MI-SAC-2-blur.mp4",
+      "web": "g1/MI-SAC.mp4",
+      "poster": "../../assets/posters/g1/MI-SAC.jpg"
+    },
+    {
+      "source": "videos/g1_locomotion/MI-SAC-Aug-2-blur.mp4",
+      "web": "g1/MI-SAC-Aug.mp4",
+      "poster": "../../assets/posters/g1/MI-SAC-Aug.jpg"
+    },
+    {
+      "source": "videos/g1_locomotion/MS-SAC-6-blur.mp4",
+      "web": "g1/MS-SAC.mp4",
+      "poster": "../../assets/posters/g1/MS-SAC.jpg"
+    }
+  ]
+}

@@ -2,6 +2,9 @@
 CLAUDE.md
 
 *.py
+!.github/scripts/prepare_pages.py
+
+_site/
 
 CoRL26*
 
